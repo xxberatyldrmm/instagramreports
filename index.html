@@ -2,16 +2,33 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Buton Tıklama Testi</title>
+  <title>Konum Test</title>
 </head>
 <body>
-  <button id="testBtn">Tıkla Beni</button>
+  <button id="sendLocationBtn">Konum Al</button>
+  <p id="status"></p>
 
   <script>
-    const btn = document.getElementById('testBtn');
+    const btn = document.getElementById('sendLocationBtn');
+    const statusEl = document.getElementById('status');
+
     btn.addEventListener('click', () => {
-      alert('Butona tıkladın!');
-      console.log('Butona tıklandı.');
+      statusEl.textContent = "Konum alınıyor...";
+      if (!navigator.geolocation) {
+        statusEl.textContent = "Tarayıcınız konum desteği sunmuyor.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          statusEl.textContent = Konum alındı: ${lat}, ${lon};
+        },
+        error => {
+          statusEl.textContent = Konum alınamadı: ${error.message};
+        }
+      );
     });
   </script>
 </body>
