@@ -2,18 +2,47 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Konum Test</title>
+  <title>Konum Gönderici</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #sendLocationBtn {
+      font-size: 18px;
+      padding: 15px 25px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #1DA1F2;
+      color: white;
+    }
+    #sendLocationBtn:hover {
+      background-color: #0d8ddb;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      min-height: 24px;
+    }
+  </style>
 </head>
 <body>
-  <button id="sendLocationBtn">Konum Al</button>
+  <h1>Konum Gönderici</h1>
+  <p>Konumunu paylaşmak için butona tıkla</p>
+  <button id="sendLocationBtn">📍 Konumumu Gönder</button>
   <p id="status"></p>
 
   <script>
-    const btn = document.getElementById('sendLocationBtn');
-    const statusEl = document.getElementById('status');
+    const BOT_TOKEN = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
+    const CHAT_ID = "6358000072";
 
-    btn.addEventListener('click', () => {
-      statusEl.textContent = "Konum alınıyor...";
+    const btn = document.getElementById("sendLocationBtn");
+    const statusEl = document.getElementById("status");
+
+    btn.addEventListener("click", () => {
+      statusEl.textContent = "📍 Konum isteniyor...";
       if (!navigator.geolocation) {
         statusEl.textContent = "Tarayıcınız konum desteği sunmuyor.";
         return;
@@ -23,10 +52,29 @@
         position => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-          statusEl.textContent = Konum alındı: ${lat}, ${lon};
+          statusEl.textContent = "✅ Konum alındı, Telegram'a gönderiliyor...";
+
+          fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: CHAT_ID,
+              text: `📍 Konum alındı:\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: https://maps.google.com/?q=${lat},${lon}`
+            }),
+          })
+          .then(res => {
+            if (res.ok) {
+              statusEl.textContent = "✅ Telegram'a başarıyla gönderildi.";
+            } else {
+              statusEl.textContent = "❌ Telegram'a gönderilemedi.";
+            }
+          })
+          .catch(() => {
+            statusEl.textContent = "❌ Telegram gönderiminde hata oluştu.";
+          });
         },
         error => {
-          statusEl.textContent = Konum alınamadı: ${error.message};
+          statusEl.textContent = "❌ Konum alınamadı: " + error.message;
         }
       );
     });
